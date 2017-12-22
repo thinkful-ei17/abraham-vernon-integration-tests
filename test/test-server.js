@@ -138,3 +138,53 @@ describe('Shopping List', function() {
       });
   });
 });
+
+describe('Recipes', function(){
+  it('should GET all recipes', function(){
+      return chai.request(app)
+      .get('/recipes')
+      .then(function(res){
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.be.a('array'); // test for this
+      });
+    });
+
+    it('should POST a recipe to the site and return a new object', function(){
+      return chai.request(app)
+      .post('/recipes')
+      .send({name: 'latte', ingredients: ['espresso','milk']})
+      .then(function(res){
+        res.should.have.status(201)
+        res.should.be.json;
+        res.body.should.include.keys('id', 'name','ingredients' )
+      })
+    });
+
+    it('should DELETE a recipe given an Id', function(){     
+      return chai.request(app)
+      .get('/recipes')
+      .then(function(res){
+        return chai.request(app)
+         .delete('/recipes/${res.body[0].id}')
+      })
+      .then(function(res){
+        res.should.have.status(204);
+      });
+    });    
+
+    it('should PUT a set of changes to a recipe given an Id', function(){
+      return chai.request(app)
+      .get('/recipes')
+      .then(function(res){
+        const rId = res.body[0].id;
+        return chai.request(app)
+        .put(`/recipes/${rId}`)
+        .send({id: rId, name:'This is a test', ingredients: ['a','b']})
+        .then(function(res){
+          res.should.have.status(204);
+        });
+      });
+    })
+});
+
